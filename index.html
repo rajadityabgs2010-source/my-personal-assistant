@@ -94,7 +94,7 @@
                 if (data.reply) {
                     chat.innerHTML += `<div class="assistant">🤖 ${data.reply}</div>`;
                 } else {
-                    chat.innerHTML += `<div class="assistant">❌ ${data.error || "Something went wrong."}</div>`;
+                    chat.innerHTML += `<div class="assistant">❌ ${data.error ? JSON.stringify(data.error) : "Something went wrong."}</div>`;
                 }
 
             } catch (error) {
