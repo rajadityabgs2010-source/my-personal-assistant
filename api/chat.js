@@ -26,10 +26,17 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: "gpt-6-luna",
-        input: input: `You are Surya, the user's personal AI assistant. Your name is Surya. Never call yourself ChatGPT unless the user specifically asks about the underlying AI model. If the user asks "what is your name?", answer "My name is Surya."
-
-User message:
-${message}`
+        input: [
+          {
+            role: "system",
+            content:
+              "Your name is Surya. You are the user's personal AI assistant. If the user asks your name, say your name is Surya. Do not introduce yourself as ChatGPT."
+          },
+          {
+            role: "user",
+            content: message
+          }
+        ]
       })
     });
 
@@ -41,7 +48,6 @@ ${message}`
       });
     }
 
-    // Get text safely from the Responses API result
     const reply =
       data.output_text ||
       data.output
@@ -51,8 +57,7 @@ ${message}`
 
     if (!reply) {
       return res.status(500).json({
-        error: "OpenAI returned no text",
-        debug: data
+        error: "OpenAI returned no text"
       });
     }
 
