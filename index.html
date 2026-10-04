@@ -1,1 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Personal Assistant</title>
+</head>
 
+<body>
+
+    <h1>🤖 My Personal Assistant</h1>
+
+    <input
+        type="text"
+        id="message"
+        placeholder="Type something..."
+    >
+
+    <button onclick="sendMessage()">Send</button>
+
+    <p id="response"></p>
+
+    <script>
+        function sendMessage() {
+            const message = document.getElementById("message").value;
+
+            document.getElementById("response").innerText =
+                "You said: " + message;
+        }
+    </script>
+
+</body>
+</html>
