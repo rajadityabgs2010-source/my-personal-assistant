@@ -38,8 +38,23 @@ export default async function handler(req, res) {
       });
     }
 
+    // Get text safely from the Responses API result
+    const reply =
+      data.output_text ||
+      data.output
+        ?.flatMap(item => item.content || [])
+        ?.find(item => item.type === "output_text")
+        ?.text;
+
+    if (!reply) {
+      return res.status(500).json({
+        error: "OpenAI returned no text",
+        debug: data
+      });
+    }
+
     return res.status(200).json({
-      reply: data.output_text || "No text response received."
+      reply: reply
     });
 
   } catch (error) {
