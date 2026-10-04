@@ -1,10 +1,11 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>My Personal Assistant</title>
+    <title>Surya - Personal AI Assistant</title>
 
     <style>
         * {
@@ -90,11 +91,11 @@
 
 <div class="container">
 
-    <h1>🤖 My Personal Assistant</h1>
+    <h1>☀️ Surya</h1>
 
     <div id="chat">
         <div class="message assistant">
-            🤖 Hello! I'm your personal assistant. Ask me anything.
+            ☀️ Hello! I'm Surya, your personal AI assistant.
         </div>
     </div>
 
@@ -103,11 +104,11 @@
         <input
             id="message"
             type="text"
-            placeholder="Type your message..."
+            placeholder="Ask Surya anything..."
             autocomplete="off"
         >
 
-        <button id="sendButton" onclick="sendMessage()">
+        <button id="sendButton">
             Send
         </button>
 
@@ -117,10 +118,8 @@
 
 <script>
 
-    // 🔴 IMPORTANT:
-    // Replace this with your EXACT Vercel domain.
     const API_URL =
-    "https://my-personal-assistant-git-main-adi3-1767.vercel.app/api/chat";
+        "https://my-personal-assistant-git-main-adi3-1767.vercel.app/api/chat";
 
 
     const input = document.getElementById("message");
@@ -128,10 +127,13 @@
     const sendButton = document.getElementById("sendButton");
 
 
-    // Press Enter to send
+    sendButton.addEventListener("click", sendMessage);
+
+
     input.addEventListener("keydown", function(event) {
 
         if (event.key === "Enter") {
+            event.preventDefault();
             sendMessage();
         }
 
@@ -147,7 +149,6 @@
         }
 
 
-        // Show user message
         chat.innerHTML += `
             <div class="message user">
                 🧑 You: ${escapeHTML(message)}
@@ -158,14 +159,14 @@
         input.value = "";
 
         sendButton.disabled = true;
+        sendButton.textContent = "Thinking...";
+
 
         const loading = document.createElement("div");
 
         loading.className = "message assistant";
-
         loading.id = "loading";
-
-        loading.innerHTML = "🤔 Thinking...";
+        loading.innerHTML = "☀️ Surya is thinking...";
 
         chat.appendChild(loading);
 
@@ -178,8 +179,11 @@
 
                 method: "POST",
 
+                cache: "no-store",
+
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Cache-Control": "no-cache"
                 },
 
                 body: JSON.stringify({
@@ -198,21 +202,18 @@
             if (!response.ok) {
 
                 throw new Error(
-                    data.error
-                        ? JSON.stringify(data.error)
-                        : `HTTP ${response.status}`
+                    data.error || `HTTP ${response.status}`
                 );
 
             }
 
 
-            const reply =
-                data.reply || "No reply received.";
+            const reply = data.reply || "No reply received.";
 
 
             chat.innerHTML += `
                 <div class="message assistant">
-                    🤖 ${escapeHTML(reply)}
+                    ☀️ ${escapeHTML(reply)}
                 </div>
             `;
 
@@ -223,16 +224,17 @@
 
             chat.innerHTML += `
                 <div class="message assistant">
-                    ❌ Error: ${escapeHTML(error.message)}
+                    ❌ ${escapeHTML(error.message)}
                 </div>
             `;
 
-            console.error(error);
+            console.error("Surya error:", error);
 
         }
 
 
         sendButton.disabled = false;
+        sendButton.textContent = "Send";
 
         input.focus();
 
@@ -256,3 +258,4 @@
 
 </body>
 </html>
+```
