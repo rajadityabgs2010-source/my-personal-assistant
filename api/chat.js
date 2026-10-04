@@ -1,50 +1,63 @@
 export default async function handler(req, res) {
+  // CORS
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
+  // Browser preflight request
   if (req.method === "OPTIONS") {
-    return res.status(200).end();
+    return res.status(204).end();
   }
 
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    return res.status(405).json({
+      error: "Method not allowed"
+    });
   }
 
   try {
     const message = req.body?.message;
 
     if (!message) {
-      return res.status(400).json({ error: "Message is required" });
+      return res.status(400).json({
+        error: "Message is required"
+      });
     }
 
-    const response = await fetch("https://api.openai.com/v1/responses", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: "gpt-6-luna",
-        input: [
-          {
-            role: "system",
-            content:
-              "Your name is Surya. You are the user's personal AI assistant. If the user asks your name, say your name is Surya. Do not introduce yourself as ChatGPT."
-          },
-          {
-            role: "user",
-            content: message
-          }
-        ]
-      })
-    });
+    const response = await fetch(
+      "https://api.openai.com/v1/responses",
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+        },
+
+        body: JSON.stringify({
+          model: "gpt-6-luna",
+          input: [
+            {
+              role: "system",
+              content:
+                "Your name is Surya. You are the user's personal AI assistant. If the user asks your name, say your name is Surya. Do not introduce yourself as ChatGPT."
+            },
+            {
+              role: "user",
+              content: message
+            }
+          ]
+        })
+      }
+    );
 
     const data = await response.json();
 
     if (!response.ok) {
       return res.status(response.status).json({
-        error: data.error?.message || JSON.stringify(data.error || data)
+        error:
+          data.error?.message ||
+          JSON.stringify(data.error || data)
       });
     }
 
