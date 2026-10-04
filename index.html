@@ -3,106 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>My Personal Assistant</title>
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
+            margin: 0;
             font-family: Arial, sans-serif;
-            max-width: 700px;
-            margin: 50px auto;
+            background: #f4f6f8;
+        }
+
+        .container {
+            max-width: 750px;
+            margin: 40px auto;
             padding: 20px;
         }
 
         h1 {
             text-align: center;
+            margin-bottom: 20px;
         }
 
         #chat {
-            min-height: 300px;
-            border: 1px solid #ccc;
-            padding: 15px;
+            height: 500px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 15px;
+            padding: 20px;
             margin-bottom: 15px;
-            border-radius: 10px;
         }
 
-        input {
-            width: 70%;
-            padding: 12px;
-            box-sizing: border-box;
-        }
-
-        button {
-            padding: 12px 18px;
-            cursor: pointer;
+        .message {
+            margin: 12px 0;
+            padding: 12px 15px;
+            border-radius: 12px;
+            line-height: 1.5;
+            word-wrap: break-word;
         }
 
         .user {
-            margin: 10px 0;
-            font-weight: bold;
+            background: #e8f0fe;
+            text-align: right;
         }
 
         .assistant {
-            margin: 10px 0;
+            background: #f1f1f1;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        #message {
+            flex: 1;
+            padding: 14px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        button {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            background: #111;
+            color: white;
+            font-size: 16px;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
     </style>
 </head>
 
 <body>
 
+<div class="container">
+
     <h1>🤖 My Personal Assistant</h1>
 
-    <div id="chat"></div>
+    <div id="chat">
+        <div class="message assistant">
+            🤖 Hello! I'm your personal assistant. Ask me anything.
+        </div>
+    </div>
 
-    <input
-        id="message"
-        type="text"
-        placeholder="Ask me anything..."
-    >
+    <div class="input-area">
 
-    <button onclick="sendMessage()">Send</button>
+        <input
+            id="message"
+            type="text"
+            placeholder="Type your message..."
+            autocomplete="off"
+        >
 
-    <script>
-        async function sendMessage() {
-            const input = document.getElementById("message");
-            const chat = document.getElementById("chat");
+        <button id="sendButton" onclick="sendMessage()">
+            Send
+        </button>
 
-            const message = input.value.trim();
+    </div>
 
-            if (!message) return;
+</div>
 
-            chat.innerHTML += `<div class="user">You: ${message}</div>`;
+<script>
 
-            input.value = "";
+    // 🔴 IMPORTANT:
+    // Replace this with your EXACT Vercel domain.
+    const API_URL =
+        my-personal-assistant-git-main-adi3-1767.vercel.app
 
-            chat.innerHTML += `<div class="assistant" id="loading">🤔 Thinking...</div>`;
 
-            try {
-                const response = await fetch(https://my-personal-assistant-git-main-adi3-1767.vercel.app/
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        message: message
-                    })
-                });
+    const input = document.getElementById("message");
+    const chat = document.getElementById("chat");
+    const sendButton = document.getElementById("sendButton");
 
-                const data = await response.json();
 
-                document.getElementById("loading").remove();
+    // Press Enter to send
+    input.addEventListener("keydown", function(event) {
 
-                if (data.reply) {
-                    chat.innerHTML += `<div class="assistant">🤖 ${JSON.stringify(data)}</div>`;
-                } else {
-                    chat.innerHTML += `<div class="assistant">❌ ${data.error ? JSON.stringify(data.error) : "Something went wrong."}</div>`;
-                }
-
-            } catch (error) {
-                document.getElementById("loading").remove();
-
-                chat.innerHTML += `<div class="assistant">❌ Could not connect to the assistant.</div>`;
-            }
+        if (event.key === "Enter") {
+            sendMessage();
         }
-    </script>
+
+    });
+
+
+    async function sendMessage() {
+
+        const message = input.value.trim();
+
+        if (!message) {
+            return;
+        }
+
+
+        // Show user message
+        chat.innerHTML += `
+            <div class="message user">
+                🧑 You: ${escapeHTML(message)}
+            </div>
+        `;
+
+
+        input.value = "";
+
+        sendButton.disabled = true;
+
+        const loading = document.createElement("div");
+
+        loading.className = "message assistant";
+
+        loading.id = "loading";
+
+        loading.innerHTML = "🤔 Thinking...";
+
+        chat.appendChild(loading);
+
+        chat.scrollTop = chat.scrollHeight;
+
+
+        try {
+
+            const response = await fetch(API_URL, {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    message: message
+                })
+
+            });
+
+
+            const data = await response.json();
+
+
+            loading.remove();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.error
+                        ? JSON.stringify(data.error)
+                        : `HTTP ${response.status}`
+                );
+
+            }
+
+
+            const reply =
+                data.reply || "No reply received.";
+
+
+            chat.innerHTML += `
+                <div class="message assistant">
+                    🤖 ${escapeHTML(reply)}
+                </div>
+            `;
+
+
+        } catch (error) {
+
+            loading.remove();
+
+            chat.innerHTML += `
+                <div class="message assistant">
+                    ❌ Error: ${escapeHTML(error.message)}
+                </div>
+            `;
+
+            console.error(error);
+
+        }
+
+
+        sendButton.disabled = false;
+
+        input.focus();
+
+        chat.scrollTop = chat.scrollHeight;
+
+    }
+
+
+    function escapeHTML(text) {
+
+        return String(text)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+
+    }
+
+</script>
+
 </body>
 </html>
