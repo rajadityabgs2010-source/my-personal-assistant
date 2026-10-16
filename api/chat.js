@@ -35,7 +35,7 @@ export default async function handler(req, res) {
         },
 
         body: JSON.stringify({
-          model: "gpt-6-luna",
+          model: "gpt-5-mini",
           input: [
             {
               role: "system",
